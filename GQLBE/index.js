@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 const Book = require('./models/book')
 const Author = require('./models/author')
+const { GraphQLError } = require('graphql')
 
 require('dotenv').config()
 
@@ -96,27 +97,42 @@ const resolvers = {
   Mutation: {
     addBook: async (root, args) => {
       console.log(args)
-      let findBook = await Book.findOne( { title: args.title })
-      if (findBook) {
-        throw new UserInputError('Title must be unique', {
-          invalidArgs: args.title,
-        })
-      }
       let findAuthor = await Author.findOne( { name: args.author })
       if (!findAuthor) {
         findAuthor = new Author({
           name: args.author
         })
         console.log(findAuthor)
-        await findAuthor.save()
+        try {
+          await findAuthor.save()          
+        } catch (error) {
+          throw new GraphQLError('Saving Author failed',{
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.author,
+              error
+            }
+          })          
+        }
       }
-
+      
       const newBook = new Book(
         { ...args,
           author: findAuthor._id
         }
       )
-      return newBook.save()
+      try {
+        await newBook.save()
+      } catch (error) {
+        throw new GraphQLError('Saving Book failed',{
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title,
+            error
+          }
+        })
+      }
+      return newBook
     
 
     },
@@ -131,7 +147,19 @@ const resolvers = {
       // return updatedAuthor
       console.log('editAuthor',args)
       let author = await Author.findOne({ name: args.name })
-      return Author.findByIdAndUpdate(author._id, {born: args.setBornTo}, {new: true} )
+      let updatedAuthor = {}
+      try {
+        updatedAuthor = await Author.findByIdAndUpdate(author._id, {born: args.setBornTo}, {new: true} )
+      } catch (error) {
+        throw new GraphQLError('Updating Author failed',{
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name,
+            error
+          }
+        })
+      }
+      return updatedAuthor
     }   
   }
 }
