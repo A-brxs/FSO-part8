@@ -1,7 +1,7 @@
 {
-  "name": "fso_gql",
+  "name": "gqlbe",
   "version": "1.0.0",
-  "description": "GraphicQL FSO22",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,9 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "apollo-server": "^3.11.1",
+    "@apollo/server": "^4.4.0",
     "dotenv": "^16.0.3",
     "graphql": "^16.6.0",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.9.2",
     "mongoose-unique-validator": "^3.1.0",
     "nodemon": "^2.0.20"
