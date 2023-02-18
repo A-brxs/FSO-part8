@@ -61,15 +61,22 @@ const resolvers = {
     },
     allBooks: async (root,args) => {
       if (args.author || args.genre) {
-        // let filteredBooks = books
-        // if (args.author) {
-        //   filteredBooks = books.filter(b => b.author === args.author)
-        // }
-        // if (args.genre) {
-        //   filteredBooks = books.filter(b => b.genres.includes(args.genre))
-        // }
-        // return filteredBooks
-        console.log('filtered books by author')
+        let filteredBooks = {}
+        let findAuthor = {}
+        if (args.author) {
+          findAuthor = await Author.findOne({ name: args.author })
+          if (args.genre) {
+            filteredBooks = await Book.find( { author: findAuthor._id, genres: args.genre })
+            return filteredBooks
+          }
+          return filteredBooks = await Book.find( { author: findAuthor._id })
+        }
+        if (!args.author) {
+          if (args.genre) {
+            filteredBooks = await Book.find( { genres: args.genre })
+            return filteredBooks
+          }
+        }
       }
       return Book.find({})
     },
@@ -122,7 +129,9 @@ const resolvers = {
       // const updatedAuthor = { ...author, born: args.setBornTo }
       // authors = authors.map(a => a.name === args.name ? updatedAuthor : a)
       // return updatedAuthor
-      console.log('editAuthor')
+      console.log('editAuthor',args)
+      let author = await Author.findOne({ name: args.name })
+      return Author.findByIdAndUpdate(author._id, {born: args.setBornTo}, {new: true} )
     }   
   }
 }
