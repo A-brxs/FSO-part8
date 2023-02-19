@@ -100,7 +100,7 @@ const resolvers = {
           }
         }
       }
-      return Book.find({})
+      return Book.find({}).populate('author')
     },
     authorCount: async () => Author.collection.countDocuments(),
     allAuthors: async (root,args) => {
