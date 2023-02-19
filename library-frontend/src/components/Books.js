@@ -1,9 +1,37 @@
 import { useQuery } from '@apollo/client'
+import { useEffect, useState } from 'react'
 import { ALL_BOOKS } from '../defs/queries'
 
 const Books = (props) => {
   const books = useQuery(ALL_BOOKS)
+  const [genre,setGenre] = useState(null)
+  const [genres,setGenres] = useState([''])
+  const [filteredBooks,setFilteredBooks] = useState([''])
 
+  const handleGenre = () => {
+    console.log(genre)
+    let tempBooks = books.data.allBooks.filter( fb => fb.genres.includes(genre))
+    setFilteredBooks(tempBooks)
+    
+  }
+
+  useEffect(() => {
+    if ( books.data ) {
+      let genresMap = books.data.allBooks.map( g => g.genres ).flat(1)
+      setGenres([ ...new Set(genresMap) ])
+    }
+  }, [books]) // eslint-disable-line
+
+  useEffect(() => {
+      if (books.data) {
+        if (genre){
+          handleGenre()
+        } else {
+          setFilteredBooks(books.data.allBooks)
+        }
+      }
+    
+  }, [books,genre]) // eslint-disable-line
 
 
   if (books.loading) {
@@ -13,11 +41,11 @@ const Books = (props) => {
     return null
   }
 
-
+  
   return (
     <div>
       <h2>books</h2>
-
+      { genre ? `Filtered by ${genre}` : null}
       <table>
         <tbody>
           <tr>
@@ -25,7 +53,7 @@ const Books = (props) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.data.allBooks.map((a) => (
+          {filteredBooks.map((a) => (
             <tr key={a.title}>
               <td>{a.title}</td>
               <td>{a.author.name}</td>
@@ -34,6 +62,13 @@ const Books = (props) => {
           ))}
         </tbody>
       </table>
+      <h3>Filter by genre</h3>
+      {genres.map(g => { 
+        return (
+          <button onClick={() => setGenre(g)} key={g}>{g}</button>
+      )
+      })}
+      <button onClick={() => setGenre(null)} key='clearG'>Clear Genre</button>
     </div>
   )
 }
