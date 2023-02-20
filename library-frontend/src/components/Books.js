@@ -1,18 +1,19 @@
-import { useQuery } from '@apollo/client'
+import { useLazyQuery, useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { ALL_BOOKS } from '../defs/queries'
+import { ALL_BOOKS, ALL_BOOKS_OF_GENRE } from '../defs/queries'
 
 const Books = (props) => {
   const books = useQuery(ALL_BOOKS)
   const [genre,setGenre] = useState(null)
   const [genres,setGenres] = useState([''])
   const [filteredBooks,setFilteredBooks] = useState([''])
+  const [getFilteredBooks, {loading,error,data}] = useLazyQuery(ALL_BOOKS_OF_GENRE)
 
-  const handleGenre = () => {
+  const handleGenre = async () => {
     console.log(genre)
-    let tempBooks = books.data.allBooks.filter( fb => fb.genres.includes(genre))
-    setFilteredBooks(tempBooks)
-    
+    let tempBooks = await getFilteredBooks({ variables: {genre: genre}})
+    console.log('temp books', tempBooks.data.allBooks)
+    return setFilteredBooks(tempBooks.data.allBooks)
   }
 
   useEffect(() => {
@@ -33,7 +34,8 @@ const Books = (props) => {
     
   }, [books,genre]) // eslint-disable-line
 
-
+  if (loading) return <p>Loading...</p>
+  if (error) return `Error! ${error}`
   if (books.loading) {
     return <div>loading...</div>
   }
@@ -41,7 +43,6 @@ const Books = (props) => {
     return null
   }
 
-  
   return (
     <div>
       <h2>books</h2>
