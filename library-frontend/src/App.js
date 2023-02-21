@@ -6,7 +6,7 @@ import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import Recommended from './components/Recommended'
 import { useQuery, useMutation, useSubscription } from '@apollo/client'
-import { BOOK_ADDED } from './defs/queries'
+import { ALL_BOOKS, BOOK_ADDED } from './defs/queries'
 
 const Notify = ({errorMessage}) => {
   if ( !errorMessage ) {
@@ -17,6 +17,14 @@ const Notify = ({errorMessage}) => {
       {errorMessage}
     </div>
   )
+}
+
+export const updateCache = (cache, query, addedBook) => {
+  cache.updateQuery(query, ({ allBooks }) => {
+    return {
+      allBooks: allBooks.concat(addedBook)
+    }
+  })
 }
 
 const App = () => {
@@ -43,7 +51,7 @@ const App = () => {
     onData: ({ data }) => {
       const addedBook = data.data.bookAdded
       notify(`${addedBook.title} added to Books!`)
-      console.log(data)
+      updateCache(client.cache, { query: ALL_BOOKS }, addedBook)
     }
   })
 
