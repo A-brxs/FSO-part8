@@ -5,7 +5,7 @@ import Books from './components/Books'
 import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import Recommended from './components/Recommended'
-import { useQuery, useMutation, useSubscription } from '@apollo/client'
+import { useSubscription } from '@apollo/client'
 import { ALL_BOOKS, BOOK_ADDED } from './defs/queries'
 
 const Notify = ({errorMessage}) => {
