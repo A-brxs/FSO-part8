@@ -10,7 +10,7 @@ const Books = (props) => {
   const [getFilteredBooks, {loading,error,data}] = useLazyQuery(ALL_BOOKS_OF_GENRE)
 
   const handleGenre = async () => {
-    console.log(genre)
+    console.log('genre',genre)
     let tempBooks = await getFilteredBooks({ variables: {genre: genre}})
     console.log('temp books', tempBooks.data.allBooks)
     return setFilteredBooks(tempBooks.data.allBooks)
@@ -18,6 +18,7 @@ const Books = (props) => {
 
   useEffect(() => {
     if ( books.data ) {
+      console.log('setgenres')
       let genresMap = books.data.allBooks.map( g => g.genres ).flat(1)
       setGenres([ ...new Set(genresMap) ])
     }
@@ -26,6 +27,7 @@ const Books = (props) => {
   useEffect(() => {
       if (books.data) {
         if (genre){
+          console.log('handlegenre')
           handleGenre()
         } else {
           setFilteredBooks(books.data.allBooks)
@@ -43,6 +45,7 @@ const Books = (props) => {
     return null
   }
 
+  console.log('books rendered')
   return (
     <div>
       <h2>books</h2>

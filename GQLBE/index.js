@@ -146,7 +146,7 @@ const resolvers = {
       
       const newBook = new Book(
         { ...args,
-          author: findAuthor._id
+          author: findAuthor
         }
       )
       try {

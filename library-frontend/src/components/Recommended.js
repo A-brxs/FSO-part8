@@ -25,9 +25,6 @@ const Recommended = (props) => {
       if (user.data) {
         console.log('ME: ',user)
           handleGenre()
-      //   } else {
-      //     setFilteredBooks(books.data.allBooks)
-      //   }
       }
     
   }, [checkBook,user]) // eslint-disable-line
