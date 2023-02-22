@@ -45,8 +45,11 @@ const resolvers = {
   Author: {
     name: (root) => root.name,
     born: (root) => root.born,
-    bookCount: (root) => {
-      return console.log('BookCount')
+    bookCount: async (root, args, context, info ) => {
+      console.log('bookCount')
+      const numberOfBooks = await context.loaders.authorList.load(root._id)
+      const bookC = numberOfBooks ? numberOfBooks.length : 0
+      return bookC
     }
   },
   Mutation: {

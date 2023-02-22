@@ -15,7 +15,12 @@ const typeDefs = require('./schema')
 const resolvers = require('./resolvers')
 const jwt = require('jsonwebtoken')
 const User = require('./models/user')
+const Author = require('./models/author')
+const Book = require('./models/book')
 
+
+const DataLoader = require('dataloader')
+const _ = require('lodash')
 
 require('dotenv').config()
 
@@ -30,6 +35,19 @@ mongoose.connect(MONGODB_URI)
   .catch((error) => {
     console.log('error connection to MongoDB:', error.message)
   })
+mongoose.set('debug', true);
+
+const authorList =  new DataLoader( async authorIds => {
+  console.log('loader')
+  const authors = 
+            await Book
+            .find( { author: authorIds })
+            .then( books => {
+              const booksByAuthorId = _.groupBy(books,"author")
+              return authorIds.map(authorId => booksByAuthorId[authorId])
+            })
+  return authors
+})
 
 const start = async () => {
   const app = express()
@@ -71,8 +89,18 @@ const start = async () => {
         if (auth && auth.startsWith('Bearer ')) {
           const decodedToken = jwt.verify(auth.substring(7), process.env.JWT_SECRET)
           const currentUser = await User.findById(decodedToken.id)
-        return { currentUser }
+        return { 
+          currentUser,
+          loaders: {
+            authorList
+          }
+          }
         }
+        return { 
+          loaders: {
+            authorList
+          }
+          }
       }
     }),
   )
